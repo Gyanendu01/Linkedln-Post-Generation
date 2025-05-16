@@ -1,0 +1,170 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -360,
+        -40
+      ],
+      "id": "382e59ae-eb77-43bd-899d-b396550d630f",
+      "name": "Telegram Trigger",
+      "webhookId": "bc58861f-bd19-41b0-9572-e4aa7288954a",
+      "credentials": {
+        "telegramApi": {
+          "id": "jV5ehDB9fBFY70nN",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=✅ Prompt to Use:\n\"Create a professional, SEO-optimized LinkedIn post about Generative AI. The post should include attention-grabbing emojis, clear value to professionals, and appeal to both technical and non-technical audiences. Keep the tone inspiring and insightful. Include relevant keywords for search visibility like ‘Generative AI’, ‘AI tools’, ‘future of work’, and ‘innovation’. Suggest a visual element that could be used with the post (e.g., infographic, diagram, AI-generated art). Use short paragraphs, line breaks, and a call-to-action to engage readers.\"\n\n✨ Example Output (What the Model Should Generate):\n🚀 Generative AI is Redefining the Future of Work!\n\nFrom automating content creation to designing entire products, #GenerativeAI is becoming a game-changer for businesses and creatives alike.\n\n🧠 Imagine tools that think, design, and ideate with you. Whether you're in marketing, software development, or design, AI can now assist you in ways never imagined.\n\n🌍 The impact?\n\nFaster product development\n\nPersonalized customer experiences\n\nSmarter decision-making\n\n💼 Businesses adopting AI tools today are positioning themselves at the forefront of innovation tomorrow.\n\n📊 Suggested visual: A split infographic showing “Traditional Workflow vs. AI-Enhanced Workflow” — with icons representing human + AI collaboration.\n\n🔍 Keywords: Generative AI, AI tools, innovation, future of work, creative automation\n\n👉 Are you using Generative AI in your work? Let me know in the comments!\n#AI #FutureOfWork #TechInnovation #LinkedInPosts #ContentMarketing\n\nUser input: {{ $json.message.text}}\ntoday's date: {{ $today}}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        -140,
+        -40
+      ],
+      "id": "eae72d93-68fa-425d-8a22-db19eee3afdf",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -200,
+        140
+      ],
+      "id": "a92648f5-7d23-4643-b5b0-581786ccda88",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "at4dD4XhpqlUwRCW",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.message.chat.id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -40,
+        140
+      ],
+      "id": "10866430-d2e9-4138-a8be-a1db9a76d53b",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "message": "={{ $json.output }}",
+        "responseType": "freeText",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        200,
+        -100
+      ],
+      "id": "09f04bae-f5a5-4960-86ad-25c30627629e",
+      "name": "Telegram",
+      "webhookId": "620d9649-29c9-432d-917c-174f76053bda",
+      "credentials": {
+        "telegramApi": {
+          "id": "jV5ehDB9fBFY70nN",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "41cf1a04-5550-4e1a-af36-f2431a9827e9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "aef02cf643259923154c97305ae74c0fe4ec2d05c317f1b05e9c8e0a56d8e172"
+  },
+  "id": "HJwzcNTUeVDYLPcC",
+  "tags": []
+}
